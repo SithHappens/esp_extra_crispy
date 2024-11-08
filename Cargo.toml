@@ -1,0 +1,34 @@
+[package]
+name = "rust_esp"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]  # https://docs.esp-rs.org/book/overview/using-the-core-library.html
+esp-hal = { version = "0.21.0", features = [
+    "esp32",
+    "defmt",
+] }
+esp-backtrace = { version = "0.14.2", features = [
+    "esp32",
+    "panic-handler",
+    "exception-handler",
+    #"println",
+    "defmt",
+] }
+esp-println = { version = "0.12.0", features = [
+    "esp32",
+    #"log",
+    "defmt-espflash",
+] }
+defmt = "0.3.8"
+#defmt-rtt = "0.4.1"  # Does not work on ESP XTensa
+#xtensa-lx-rt = { version = "0.17.1", features = ["esp32"] }  # probaly not needed cause part of esp_hal?
+critical-section = "1.2.0"
+
+[profile.release]
+debug = 2
+codegen-units = 1
+lto = "fat"
+
+[lints.rust]
+unused = "allow"

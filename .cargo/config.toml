@@ -1,0 +1,34 @@
+[target.xtensa-esp32-none-elf]
+runner = "espflash flash --monitor --log-format=defmt"  # --no-stub?
+
+[build]
+target = "xtensa-esp32-none-elf"
+#linker = "ldproxy"
+
+rustflags = [
+    # uses esp-hal/esp-hal/ld/esp32/linkall.x
+    # probably specifies that the program code should be stored in Flash,
+    # while stack and heap sections should be allocated in RAM
+    "-C", "link-arg=-Tlinkall.x",
+
+    # Required to obtain backtraces (e.g. when using the "esp-backtrace" crate.)
+    # NOTE: May negatively impact performance of produced code
+    "-C", "force-frame-pointers",
+
+    # Disable default alignment on memory boundaries to keep the binary as compact as possible
+    #"-C", "link-arg=--nmagic",
+
+    # The defmt.x linker script likely defines specific memory areas
+    # and configurations to manage defmt debug data efficiently
+    "-C", "link-arg=-Tdefmt.x",
+]
+
+
+[unstable]
+build-std = ["core"]
+
+# Tipp: run `cargo clean` after changing these values
+[env]
+DEFMT_LOG = "info"                  # default: error, other options: trace, debug, warn or off
+                                    # to set by module, chain as list: "warn,{crate}::{mod}=trace,..."
+DEFMT_RTT_BUFFER_SIZE = "1024"

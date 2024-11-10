@@ -24,6 +24,7 @@ defmt = "0.3.8"
 #defmt-rtt = "0.4.1"  # Does not work on ESP XTensa
 #xtensa-lx-rt = { version = "0.17.1", features = ["esp32"] }  # probaly not needed cause part of esp_hal?
 critical-section = "1.2.0"
+fugit = { version = "0.3.7", features = ["defmt"] }  # compile-time time units
 
 [profile.release]
 debug = 2

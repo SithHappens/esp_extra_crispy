@@ -1,24 +1,17 @@
 #![no_std]
 #![no_main]
 
-use core::cell::RefCell;
-
-use critical_section::Mutex;
-use defmt::{info, warn, Format};
+use defmt::{info, warn};
 use esp_backtrace as _;
-use esp_hal::{
-    delay::Delay,
-    entry,
-    gpio::{self, Event, Input, InputPin, Io, Level, Output, Pull},
-    interrupt,
-    peripheral::Peripheral,
-    peripherals::Interrupt,
-    rtc_cntl::Rtc,
-    InterruptConfigurable,
-};
+use esp_hal::{delay::Delay, entry, gpio::Io};
 use esp_println as _;
 use fugit::ExtU64;
-use rust_esp::{ButtonEvent, Error, RotaryButton, RotationEvent, Ticker};
+use rotary_button_sync::{ButtonEvent, RotaryButton, RotationEvent};
+use rust_esp::Error;
+use time::Ticker;
+
+mod rotary_button_sync;
+mod time;
 
 
 #[entry]
@@ -28,10 +21,9 @@ fn main() -> ! {
     info!("Hello, ESP!");
     warn!("value: {}", Error::GenericError("hi"));
 
-    let mut io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
+    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     let mut rotary = RotaryButton::new(io.pins.gpio22, io.pins.gpio23, io.pins.gpio21);
 
-    let a = 5;
 
     Ticker::init(peripherals.LPWR, 1000u64.millis());
     Ticker::register_callback(|| {

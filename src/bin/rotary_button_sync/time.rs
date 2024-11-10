@@ -1,13 +1,11 @@
 use core::cell::RefCell;
 
 use critical_section::Mutex;
-use defmt::info;
 use esp_hal::{
     delay::MicrosDurationU64,
     macros::handler,
-    peripheral::Peripheral,
     peripherals::LPWR,
-    rtc_cntl::{Rtc, Rwdt},
+    rtc_cntl::Rtc,
     InterruptConfigurable,
 };
 

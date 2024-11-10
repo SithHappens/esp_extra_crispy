@@ -6,7 +6,6 @@ use defmt::Format;
 use esp_hal::{
     gpio::{Input, InputPin, Pull},
     peripheral::Peripheral,
-    peripherals::GPIO,
 };
 
 

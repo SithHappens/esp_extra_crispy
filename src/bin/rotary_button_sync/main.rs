@@ -19,7 +19,7 @@ fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
 
     info!("Hello, ESP!");
-    warn!("value: {}", Error::GenericError("hi"));
+    warn!("value: {}", Error::Generic("hi"));
 
     let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
     let mut rotary = RotaryButton::new(io.pins.gpio22, io.pins.gpio23, io.pins.gpio21);

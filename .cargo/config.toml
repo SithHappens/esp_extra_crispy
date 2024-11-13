@@ -29,6 +29,6 @@ build-std = ["core"]
 
 # Tipp: run `cargo clean` after changing these values
 [env]
-DEFMT_LOG = "info"                  # default: error, other options: trace, debug, warn or off
+DEFMT_LOG = "trace"                 # default: error, other options: trace, debug, warn or off
                                     # to set by module, chain as list: "warn,{crate}::{mod}=trace,..."
 DEFMT_RTT_BUFFER_SIZE = "1024"

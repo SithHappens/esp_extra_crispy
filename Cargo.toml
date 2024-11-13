@@ -2,6 +2,7 @@
 name = "rust_esp"
 version = "0.1.0"
 edition = "2021"
+default-run = "async_experiment"
 
 [dependencies]  # https://docs.esp-rs.org/book/overview/using-the-core-library.html
 esp-hal = { version = "0.21.0", features = [
@@ -25,6 +26,8 @@ defmt = "0.3.8"
 #xtensa-lx-rt = { version = "0.17.1", features = ["esp32"] }  # probaly not needed cause part of esp_hal?
 critical-section = "1.2.0"
 fugit = { version = "0.3.7", features = ["defmt"] }  # compile-time time units
+heapless = { version = "0.8.0", features = ["portable-atomic"] }
+futures = { version = "0.3.31", default-features = false, features = ["async-await"] }
 
 [profile.release]
 debug = 2
@@ -32,4 +35,4 @@ codegen-units = 1
 lto = "fat"
 
 [lints.rust]
-#unused = "allow"
+unused = "allow"

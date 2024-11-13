@@ -1,4 +1,4 @@
 [toolchain]
-channel = "esp"
+channel = "esp"  # install via espup: `cargo install espup; espup install;`
 components = [ "rust-src" ]
 targets = [ "xtensa-esp32-none-elf" ]

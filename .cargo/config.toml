@@ -25,7 +25,7 @@ rustflags = [
 
 
 [unstable]
-build-std = ["core"]
+build-std = ["alloc", "core"]
 
 # Tipp: run `cargo clean` after changing these values
 [env]

@@ -70,7 +70,7 @@ impl<'a> RotaryButton<'a> {
         }
 
         // Button
-        let button_level = self.pin_sw.get_level() as u8;
+        let button_level = self.pin_sw.level() as u8;
         self.button_state = (self.button_state << 1) | button_level;
 
         (self.rotation_state.into(), self.button_state.into())

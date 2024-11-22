@@ -1,23 +1,34 @@
 #![no_std]
 #![no_main]
+#![feature(waker_getters)] // used in `ExtWaker`
 
 use core::{
+    cell::RefCell,
     future::Future,
     pin::{pin, Pin},
     task::{Context, Poll},
     time::Duration,
 };
 
-use defmt::{info, trace, Format};
+use critical_section::Mutex;
+use defmt::info;
 use esp_backtrace as _;
 use esp_hal::{
-    delay::Delay,
     entry,
-    reset::SleepSource,
-    rtc_cntl::{get_wakeup_cause, sleep::TimerWakeupSource, Rtc},
+    peripherals::LPWR,
+    rtc_cntl::sleep::TimerWakeupSource,
+    InterruptConfigurable,
 };
 use esp_println as _;
-use rust_esp::executor::{self, Executor, ExtWaker, TaskId};
+use executor::{Executor, ExtWaker, TaskId};
+use fugit::MicrosDurationU64;
+
+
+mod channel;
+mod executor;
+mod rtc;
+
+use rtc::RtcRef as Rtc;
 
 
 // region:    --- Delay
@@ -27,27 +38,25 @@ enum TimerState {
     Wait,
 }
 
-struct Timer<'a> {
-    rtc: &'a Rtc<'a>,
+struct MyTimer {
     state: TimerState,
 }
 
-impl<'a> Timer<'a> {
+impl MyTimer {
     // TODO actually implement to wait for duration
-    fn new(rtc: &'a Rtc<'_>) -> Self {
+    fn new() -> Self {
         Self {
-            rtc: rtc,
             state: TimerState::Init,
         }
     }
 
-    fn register(&self, task_id: TaskId) {
+    fn register(&self, _task_id: TaskId) {
         // schedule_wakeup rtc.borrow_ref_mut(cs)
         // TODO how do I schedule the interrupt with rtc.sleep_light(...)?
     }
 }
 
-impl<'a> Future for Timer<'a> {
+impl Future for MyTimer {
     type Output = ();
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
@@ -70,8 +79,8 @@ impl<'a> Future for Timer<'a> {
     }
 }
 
-pub async fn delay_millis<'a>(rtc: &Rtc<'_>, duration: u16) {
-    Timer::new(rtc).await;
+pub async fn delay_millis(_duration: u16) {
+    MyTimer::new().await;
 }
 
 // endregion: --- Delay
@@ -81,36 +90,38 @@ async fn async_number() -> u32 {
     42
 }
 
-async fn async_task() {
+async fn num_task() {
     let number = async_number().await;
     info!("Async number: {}", number);
 }
-
+/*
 async fn dot_task(rtc: &Rtc<'_>) {
     loop {
         info!(".");
         delay_millis(rtc, 1000).await;
     }
 }
+*/
 
+//Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
-    let mut rtc = Rtc::new(peripherals.LPWR);
+    Rtc::init(peripherals.LPWR);
 
     info!("Going to sleep for 5s");
     let wake_source = TimerWakeupSource::new(Duration::new(5, 0));
-    rtc.sleep_light(&[&wake_source]);
+    Rtc::with_guard(|rtc| rtc.sleep_light(&[&wake_source]));
     info!("Hello, ESP!");
 
     //let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
 
-    let task = pin!(async_task());
-    let dot_task = pin!(dot_task(&rtc));
+    let task = pin!(num_task());
+    //let dot_task = pin!(dot_task(&rtc));
 
     //let mut tasks: &mut [&mut dyn Future<Output = ()>; 1] = &mut [&mut async_task()];
 
-    let executor = Executor::new(&rtc);
-    executor.run(&mut [dot_task, task])
+    let mut executor = Executor::new();
+    executor.run(&mut [task])
 }

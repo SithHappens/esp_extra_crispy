@@ -4,8 +4,6 @@ use core::{
     task::{Poll, Waker},
 };
 
-use crate::executor::{wake_task, TaskId};
-
 
 pub struct Channel<T> {
     item: Cell<Option<T>>,

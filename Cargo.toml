@@ -5,7 +5,7 @@ edition = "2021"
 default-run = "async_experiment"
 
 [dependencies]  # https://docs.esp-rs.org/book/overview/using-the-core-library.html
-esp-hal = { version = "0.21.0", features = [
+esp-hal = { version = "0.22.0", features = [
     "esp32",
     "defmt",
 ] }
@@ -28,6 +28,13 @@ critical-section = "1.2.0"
 fugit = { version = "0.3.7", features = ["defmt"] }  # compile-time time units
 heapless = { version = "0.8.0", features = ["portable-atomic"] }
 futures = { version = "0.3.31", default-features = false, features = ["async-await"] }
+embassy-executor = "0.6.3"
+embassy-time = { version = "0.3.2", features = []}
+esp-hal-embassy = { version = "0.5.0", features = [
+    "esp32",
+    "defmt",
+    "integrated-timers"
+]}
 
 [profile.release]
 debug = 2

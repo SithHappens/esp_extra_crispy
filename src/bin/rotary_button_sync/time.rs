@@ -5,7 +5,7 @@ use esp_hal::{
     delay::MicrosDurationU64,
     macros::handler,
     peripherals::LPWR,
-    rtc_cntl::Rtc,
+    rtc_cntl::{Rtc, RwdtStage},
     InterruptConfigurable,
 };
 
@@ -29,7 +29,7 @@ impl<'a> Ticker<'a> {
     pub fn init(lpwr: LPWR, timeout: MicrosDurationU64) {
         let mut rtc = Rtc::new(lpwr);
         rtc.set_interrupt_handler(interrupt_handler);
-        rtc.rwdt.set_timeout(timeout);
+        rtc.rwdt.set_timeout(RwdtStage::Stage0, timeout);
         rtc.rwdt.listen();
         critical_section::with(|cs| {
             TICKER.rtc.replace(cs, Some(rtc));

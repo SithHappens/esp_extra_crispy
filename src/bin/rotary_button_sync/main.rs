@@ -3,7 +3,7 @@
 
 use defmt::{info, warn};
 use esp_backtrace as _;
-use esp_hal::{delay::Delay, entry, gpio::Io};
+use esp_hal::{delay::Delay, entry};
 use esp_println as _;
 use fugit::ExtU64;
 use rotary_button_sync::{ButtonEvent, RotaryButton, RotationEvent};
@@ -21,8 +21,7 @@ fn main() -> ! {
     info!("Hello, ESP!");
     warn!("value: {}", Error::Generic("hi"));
 
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let mut rotary = RotaryButton::new(io.pins.gpio22, io.pins.gpio23, io.pins.gpio21);
+    let mut rotary = RotaryButton::new(peripherals.GPIO22, peripherals.GPIO23, peripherals.GPIO21);
 
 
     Ticker::init(peripherals.LPWR, 1000u64.millis());

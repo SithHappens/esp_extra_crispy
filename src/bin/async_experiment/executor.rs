@@ -1,19 +1,14 @@
 use core::{
     future::Future,
     pin::Pin,
-    task::{Context, Poll, RawWaker, RawWakerVTable, Waker},
+    task::{Context, RawWaker, RawWakerVTable, Waker},
 };
 
-use defmt::{info, trace, warn};
-use esp_hal::{
-    gpio::WakeEvent,
-    interrupt::{self, software::SoftwareInterrupt},
-    rtc_cntl::{
-        sleep::{GpioWakeupSource, RtcSleepConfig, TimerWakeupSource, WakeSource, WakeTriggers},
-        Rtc,
-    },
-};
+use defmt::{trace, warn};
+use esp_hal::rtc_cntl::sleep::WakeSource;
 use heapless::mpmc::Q32;
+
+use crate::Rtc;
 
 pub type TaskId = usize;
 
@@ -37,7 +32,7 @@ pub trait ExtWaker {
 impl ExtWaker for Waker {
     fn task_id(&self) -> TaskId {
         // uses unstable feature `waker-getters`
-        return (self.as_raw().data() as TaskId);
+        return self.as_raw().data() as TaskId;
     }
 }
 
@@ -74,16 +69,18 @@ pub fn wake_task(task_id: TaskId) {
 // endregion: --- Waker
 
 
-pub struct Executor<'a> {
-    rtc: &'a Rtc<'a>,
+pub struct Executor {
+    //heapless
 }
 
-impl<'a> Executor<'a> {
-    pub fn new(rtc: &'a Rtc<'_>) -> Self {
-        Self { rtc }
+impl Executor {
+    pub fn new() -> Self {
+        Self {}
     }
 
-    pub fn run(&self, tasks: &mut [Pin<&mut dyn Future<Output = ()>>]) -> ! {
+    //pub fn spawn_task() {}
+
+    pub fn run(&mut self, tasks: &mut [Pin<&mut dyn Future<Output = ()>>]) -> ! {
         // make sure every task is ran at least once
         for task_id in 0..tasks.len() {
             TASK_QUEUE.enqueue(task_id).ok();
@@ -96,14 +93,19 @@ impl<'a> Executor<'a> {
                     continue;
                 }
                 trace!("Running task {}", task_id);
+                let waker = get_waker(task_id);
                 let _ = tasks[task_id]
                     .as_mut()
-                    .poll(&mut Context::from_waker(&get_waker(task_id)));
+                    .poll(&mut Context::from_waker(&waker));
             }
-            //trace!("No tasks ready, going to sleep");
+            trace!("No tasks ready, going to sleep");
 
-            // TODO specify WakeSource
-            //self.rtc.sleep_light();
+            Rtc::with_guard(|rtc| {
+                // TODO specify WakeSource
+                rtc.sleep_light(&[]);
+            });
+
+            trace!("Waking up");
         }
     }
 }

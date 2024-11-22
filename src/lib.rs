@@ -6,13 +6,11 @@
 
 #![no_std]
 #![no_main]
-#![feature(waker_getters)] // used in `ExtWaker`
 
-
-mod channel;
 
 pub mod error;
-pub mod executor;
+
+use core::alloc;
 
 // Re-exports
 pub use error::{Error, Result};

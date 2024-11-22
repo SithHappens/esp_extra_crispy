@@ -10,7 +10,6 @@
 
 pub mod error;
 
-use core::alloc;
 
 // Re-exports
 pub use error::{Error, Result};

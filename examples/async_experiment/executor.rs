@@ -5,7 +5,6 @@ use core::{
 };
 
 use defmt::{trace, warn};
-use esp_hal::rtc_cntl::sleep::WakeSource;
 use heapless::mpmc::Q32;
 
 use crate::Rtc;

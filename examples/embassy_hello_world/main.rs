@@ -16,13 +16,15 @@ use esp_backtrace as _;
 use esp_hal::timer::timg::TimerGroup;
 use esp_println as _;
 
+
 #[embassy_executor::task]
 async fn run() {
     loop {
-        esp_println::println!("Hello world from embassy using esp-hal-async!");
+        info!("Hello world from embassy using esp-hal-async!");
         Timer::after(Duration::from_millis(1_000)).await;
     }
 }
+
 
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {

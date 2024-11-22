@@ -5,6 +5,7 @@ use core::{
 };
 
 
+#[derive(Default)]
 pub struct Channel<T> {
     item: Cell<Option<T>>,
     waker: RefCell<Option<Waker>>,
@@ -19,12 +20,12 @@ impl<T> Channel<T> {
     }
 
     pub fn get_sender(&self) -> Sender<T> {
-        Sender { channel: &self }
+        Sender { channel: self }
     }
 
     pub fn get_receiver(&self) -> Receiver<T> {
         Receiver {
-            channel: &self,
+            channel: self,
             state: ReceiverState::Init,
         }
     }

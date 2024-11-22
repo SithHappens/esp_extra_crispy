@@ -15,7 +15,7 @@ pub struct RtcRef<'a> {
 
 impl<'a> RtcRef<'a> {
     pub fn init(lpwr: LPWR) {
-        let mut rtc = Rtc::new(lpwr);
+        let rtc = Rtc::new(lpwr);
         critical_section::with(|cs| {
             RTC.rtc.replace(cs, Some(rtc));
         });

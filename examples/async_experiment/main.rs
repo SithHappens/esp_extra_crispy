@@ -3,28 +3,20 @@
 #![feature(waker_getters)] // used in `ExtWaker`
 
 use core::{
-    cell::RefCell,
     future::Future,
     pin::{pin, Pin},
     task::{Context, Poll},
     time::Duration,
 };
 
-use critical_section::Mutex;
 use defmt::info;
 use esp_backtrace as _;
-use esp_hal::{
-    entry,
-    peripherals::LPWR,
-    rtc_cntl::sleep::TimerWakeupSource,
-    InterruptConfigurable,
-};
+use esp_hal::{entry, rtc_cntl::sleep::TimerWakeupSource};
 use esp_println as _;
 use executor::{Executor, ExtWaker, TaskId};
-use fugit::MicrosDurationU64;
 
 
-mod channel;
+pub mod channel;
 mod executor;
 mod rtc;
 
